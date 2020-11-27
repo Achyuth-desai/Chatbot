@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<meta charset="utf-8" name="viewport" content="width = device-width, initial-scale =1">
+	<title>CHATBOT</title>
+	<style type="text/css">
+		body {
+			font-family: Arial, sans-serif;
+			width: calc(100vw - 10px)
+		}
+		*{
+			box-sizing: border-box;
+		}
+		#open-button{
+			background-color: #555;
+	  		color: white;
+	  		padding: 16px 20px;
+	  		border: none;
+	  		cursor: pointer;
+	  		opacity: 0.8;
+	  		position: fixed;
+	  		bottom: 23px;
+	  		right: 28px;
+	  		width: 280px;
+		}
+
+		#chatwindow{
+			display: none;
+		  	position: fixed;
+		  	bottom: 0;
+		  	right: 15px;
+		  	border: 3px solid #f1f1f1;
+		  	z-index: 9;
+		  	padding: 10px;
+		}
+
+		#chatwindow #chatmessage{
+			max-height: 400px;
+			overflow: auto;
+		}
+
+		#chatbox{
+			max-width: 300px;
+			padding: 10px;
+			background-color: white;
+		}
+		#chatbox #textinput{
+			width: 100%;
+			padding: 15px;
+			margin: 5px 0 22px 0;
+		  	border: none;
+		  	background: #f1f1f1;
+		  	resize: none;
+		  	/*min-height: 200px;*/
+		}
+
+		#chatbox #textinput:focus{
+			background-color: #ddd;
+			outline: none;
+		}
+
+		#chatbox .btn{
+			background-color: #4CAF50;
+		  	color: white;
+		  	padding: 16px 20px;
+		  	border: none;
+		  	cursor: pointer;
+		  	width: 100%;
+		  	margin-bottom:10px;
+		  	opacity: 0.8;
+		}
+		#chatbox #buttonclose{
+			background-color: red;
+		}
+
+		#open-button:hover , .btn:hover{
+			opacity: 1;
+		}
+	</style>
+</head>
+<body>
+	<div id="chatbox">
+	<button id= "open-button" onclick="openbot()">Chat</button>
+	<div id= "chatwindow">
+		<div id="chatmessage">
+			<p>Hi! This is your chatbot.</p>
+		</div>
+		<input id = "textinput" type = "text" name = "msg" placeholder = "Message" required>
+		<input id = "buttoninput" class = "btn" type = "submit" value="Send">
+		<input id = "buttonclose" class = "btn" type="button" value = "Close" onclick="closebot()">
+	</div>
+	<script type="text/javascript">
+		function getbotresponse(){
+			var rawText = $("#textinput").val();
+			var userHTML = '<p class = "usertext"><span>' + rawText + '</span></p>'
+			$("#textinput").val("");
+			$("#chatmessage").append(userHTML);
+			document.getElementById('chatwindow').scrollIntoView({block:'start',behaviour:'smooth'});
+			scrolltolatest();
+			$.get("/get", {msg:rawText}).done(function(data) {
+				var botHtml = '<p class = "botText"><span>' + data + '</span></p>';
+				$("#chatmessage").append(botHtml);
+				document.getElementById('chatwindow').scrollIntoView({block : 'start', behaviour:'smooth'}); 	
+				scrolltolatest();
+			});
+		}
+		function scrolltolatest(){
+			$('#chatmessage').stop().animate ({
+  				scrollTop: $('#chatmessage')[0].scrollHeight
+			});
+		}
+		$("#textinput").keypress(function(e){
+			if (e.which == 13){
+				getbotresponse();
+			}
+		});
+		$("#buttoninput").click(function(){
+			getbotresponse();
+		});
+		function openbot(){
+			document.getElementById("open-button").style.display = "none"
+			document.getElementById("chatwindow").style.display = "block";
+		}
+		function closebot(){
+			document.getElementById("chatwindow").style.display = "none";
+			document.getElementById("open-button").style.display = "block"
+		}
+	</script>
+</body>
+</html>
